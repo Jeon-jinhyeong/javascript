@@ -48,6 +48,7 @@ app.use(function(req,res,next){
  
 app.use('/', pageRouter);
 app.use('/', authRouter);
+app.use("/posts", require("./routes/posts"));
 
 
 
