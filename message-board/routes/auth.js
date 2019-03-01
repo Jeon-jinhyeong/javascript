@@ -49,15 +49,7 @@ router.post('/login', isNotLoggedIn, (req, res, next) => {
 router.get('/logout', isLoggedIn, (req, res) => {
     req.logout();
     req.session.destroy();
-    req.redirect('/main');
-});
-
-router.get('/kakao', passport.authenticate('kakao'));
-
-router.get('/kakao/callback', passport.authenticate('kakao', {
-    failureRedirect: '/',
-}), (req, res) => {
-    res.redirect('/');
+    req.redirect('/');
 });
 
 module.exports = router;

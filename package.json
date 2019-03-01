@@ -1,6 +1,6 @@
 {
-  "name": "test_server",
-  "version": "1.0.0",
+  "name": "gif-chat",
+  "version": "0.0.1",
   "description": "javascript study",
   "main": "index.js",
   "scripts": {
