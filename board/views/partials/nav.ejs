@@ -16,7 +16,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <% if(isAuthenticated){ %>
-         <li><a href="/users/<%= currentUser.username %>">My Account</a></li>
+         <li><a href="/<%= currentUser.username %>">My Account</a></li>
          <li><a href="/logout">Logout</a></li>
         <% } else { %>
          <li><a href="/join">Sign Up</a></li>
