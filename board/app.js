@@ -1,72 +1,66 @@
-const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const session = require('express-session');
-const flash = require('connect-flash');
-const passport = require('passport');
-require('dotenv').config();
+// Express 관련
+const express = require('express'),
+      app = express();
 
-const authRouter = require('./routes/auth');
-const pageRouter = require('./routes/page')
+// Cookie & Session
+const cookieParser = require('cookie-parser'),
+      session = require('express-session');
+
+// 설정 관련
+const config = require(__dirname + '/config/config.json');
+      
+// Lib
+const path = require('path'),
+      logger = require('morgan'),
+      flash = require('connect-flash'), // 메시지를 1회용으로 띄어줄때?
+      passport = require('passport');
+
+// Route 관련
+const pageRouter = require('./routes'),
+      apiRouter = require('./routes/api');
+
+// DB 관련      
 const { sequelize } = require('./models');
-const passportconifg = require('./passport');
 
-const app = express();
-sequelize.sync();
-passportconifg(passport);
+const passportconifg = require('./lib/passportManager');
+sequelize.sync(); // DB가 있으면 만들고 DB가 없으면 새로만듬?
+passportconifg(passport); 
 
-// view engine setup
+// view engine 설정
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.set('port', process.env.PORT || 3000);
+
+// PORT 설정
+app.set('port', config.PORT || 3000);
 
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(express.urlencoded({ extended: false })); // ?
+app.use(express.json()); // ?
+app.use(cookieParser(config.COOKIE_SECRET)); 
 app.use(session({
   resave: false,
   saveUninitialized: false,
-  secret: process.env.COOKIE_SECRET,
+  secret: config.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
     secure: false,
   },
 }));
-app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(flash()); // ?
+app.use(passport.initialize()); // ?
+app.use(passport.session()); // ?
 
-app.use(function(req,res,next){
-  res.locals.isAuthenticated = req.isAuthenticated();
+// pre-setting : ?
+// route보다는 앞에 선언되어야 함
+app.use((req, res, next) => {  
+  res.locals.isAuthenticated = req.isAuthenticated(); // ?
   res.locals.currentUser = req.user;
   next();
  });
- 
+
 app.use('/', pageRouter);
-app.use('/', authRouter);
-app.use("/posts", require("./routes/posts"));
-
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use('/api', apiRouter);
 
 app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번으로 서버 대기 중');
